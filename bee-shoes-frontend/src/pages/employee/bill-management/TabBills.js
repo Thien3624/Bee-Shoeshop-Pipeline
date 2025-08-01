@@ -16,7 +16,7 @@ import TextArea from "antd/es/input/TextArea";
 function TabBills({ statusBill, dataFillter, addNotify, quantityNotify }) {
   const [dataBill, setDataBill] = useState([]);
   const [dataIdCheck, setDataIdCheck] = useState([]);
-  const socket = new SockJS("http://192.168.48.33:8080/ws");
+  const socket = new SockJS("http://api-beeshop.thienlowtech.vn/ws");
   const stompClient = Stomp.over(socket);
 
   const formatCurrency = (value) => {

@@ -20,7 +20,7 @@ function SearchBill() {
         }, {});
         console.log(trimmedValues);
         window.open(
-          "http://192.168.48.33:3000/bill/" +
+          "http://beeshop.thienlowtech.vn/bill/" +
             trimmedValues.code +
             "/" +
             trimmedValues.phoneNumber,

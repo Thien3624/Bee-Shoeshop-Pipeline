@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Đường dẫn api
-let api = "http://192.168.48.33:8080/admin/address";
+let api = "http://api-beeshop.thienlowtech.vn/admin/address";
 
 var dataUser = [];
 
