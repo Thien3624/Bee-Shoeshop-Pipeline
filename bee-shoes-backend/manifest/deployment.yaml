@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beeshop-backend-deployment
+  namespace: beeshop
+  labels:
+    app: beeshop-backend
+spec:
+  replicas: 11
+  selector:
+    matchLabels:
+      app: beeshop-backend
+  template: 
+    metadata:
+      labels:
+        app: beeshop-backend
+    spec:  
+      containers:
+      - name: beeshop-backend
+        image: thien3624/beeshop-backend:replaceImageTag
+        ports:
+        - containerPort: 8080
+
+

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: beeshop-backend-service
+  namespace: beeshop
+spec:
+  selector:
+    app: beeshop-backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
