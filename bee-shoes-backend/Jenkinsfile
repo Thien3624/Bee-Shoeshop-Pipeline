@@ -88,7 +88,7 @@ pipeline{
         stage('Update Deployment File') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'gitCred', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                    withCredentials([usernamePassword(credentialsId: gitCred, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                         sh ( script: ''' git config user.email "duythien3624@gmail.com" ''')
                         sh ( script: ''' git config user.name "Thien3624" ''')
                         sh ( script: ''' sed -i "s#image: thien3624/beeshop-backend:.*#image: thien3624/beeshop-backend:${tagCommit}#g" bee-shoes-backend/manifests/deployment.yml ''')
