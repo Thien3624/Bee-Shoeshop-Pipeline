@@ -13,7 +13,7 @@ pipeline{
         trivyImageReport = "image-scan-${projectName}-${tagCommit}_report"
 
         dockerHub = "thien3624"
-        dockerCredentials = "dockerhub-cred"
+        dockerCredentials = 'dockerhub-cred'
         tagCommit = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.take(7)}"
         imageCommit = "${dockerHub}/${projectName}:${tagCommit}"
         imageLatest = "${dockerHub}/${projectName}:latest"
@@ -72,20 +72,24 @@ pipeline{
                 }
             }
         }
+        stage("Push stage"){
+            // agent{ label 'build-server-agent' }
+            steps{
+                withCredentials([usernamePassword(credentialsId: dockerCredentials, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh (script: ''' docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} ''')
+                    sh (script: ''' docker push ${imageLatest} ''')
+                    sh (script: ''' docker push ${imageCommit} ''')
+                }      
+            }
+        }
         stage("Clean stage")
         {
             steps{
                 sh (script: """docker rmi ${imageLatest}""")
                 sh (script: """docker rmi ${imageCommit}""")
-                sh (script: '''chown 777 ${trivyFsReport}.html ''')
-                sh (script: '''chown 777 ${trivyImageReport}.html ''')
-            }
-        }
-        stage("Push"){
-            // agent{ label 'build-server-agent' }
-            steps{
+                sh (script: '''sudo chown 777 ${trivyFsReport}.html ''')
+                sh (script: '''sudo chown 777 ${trivyImageReport}.html ''')
                 sh """ docker system prune -af """
-                sh """ ls -al """
             }
         }
     }
