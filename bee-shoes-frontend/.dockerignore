@@ -1,0 +1,13 @@
+# Node modules không cần copy vì sẽ được cài trong container
+node_modules
+yarn-error.log
+build
+dist
+.git
+.gitignore
+.env.
+.idea
+logs
+*.log
+Dockerfile
+Jenkinsfile

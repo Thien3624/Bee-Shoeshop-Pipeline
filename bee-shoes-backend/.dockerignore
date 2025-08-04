@@ -1,0 +1,16 @@
+target
+build
+out
+.idea
+logs
+*.iml
+*.log
+.git
+.gitignore
+Jenkinsfile
+docker-compose.yml
+Dockerfile*
+.env
+.env.*
+
+
