@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: beeshop-frontend-service
+  namespace: beeshop
+spec:
+  selector:
+    app: beeshop-frontend
+  ports:
+    - protocol: TCP
+      port: 8386
+      targetPort: 80
