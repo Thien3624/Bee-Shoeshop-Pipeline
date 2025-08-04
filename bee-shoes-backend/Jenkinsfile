@@ -43,7 +43,7 @@ pipeline{
                     sh '''
                         docker run --rm \
                             -v /var/run/docker.sock:/var/run/docker.sock \
-                            -v $WORKSPACE/bee-shoes-backend:/app \
+                            -v ./bee-shoes-backend:/app \
                             aquasec/trivy:latest fs /app \
                             --severity HIGH,CRITICAL \
                             --format template --template "@/contrib/html.tpl" \
