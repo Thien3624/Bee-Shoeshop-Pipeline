@@ -43,7 +43,7 @@ pipeline{
                     sh '''
                         docker run --rm \
                             -v /var/run/docker.sock:/var/run/docker.sock \
-                            -v ./bee-shoes-frontend:/app \
+                            -v $WORKSPACE/bee-shoes-frontend:/app \
                             aquasec/trivy:latest fs /app \
                             --severity HIGH,CRITICAL \
                             --format template --template "@/contrib/html.tpl" \
@@ -67,7 +67,7 @@ pipeline{
                     sh '''
                         docker run --rm \
                             -v /var/run/docker.sock:/var/run/docker.sock \
-                            -v $WORKSPACE:/app \
+                            -v $WORKSPACE/bee-shoes-frontend:/app \
                             aquasec/trivy:latest image \
                             --format template --template "@/contrib/html.tpl" \
                             --output /app/${trivyImageReport}.html $imageCommit
@@ -106,8 +106,8 @@ pipeline{
             steps{
                 sh (script: """docker rmi ${imageLatest}""")
                 sh (script: """docker rmi ${imageCommit}""")
-                sh (script: '''sudo chown 777 ${trivyFsReport}.html ''')
-                sh (script: '''sudo chown 777 ${trivyImageReport}.html ''')
+                sh (script: '''sudo chown 777 $WORKSPACE/bee-shoes-frontend/${trivyFsReport}.html ''')
+                sh (script: '''sudo chown 777 $WORKSPACE/bee-shoes-frontend/${trivyImageReport}.html ''')
                 sh """ docker system prune -af """
                 sh """ docker logout """ 
             }
