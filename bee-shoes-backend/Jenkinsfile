@@ -1,0 +1,92 @@
+pipeline{
+    agent { label 'build-server-agent' }
+    environment
+    {
+        projectName = "bee-shoeshop-backend"
+        pathProject = "/projects/$projectName"
+
+        sonarToken = credentials('bee-shoeshop-scaner-token')
+        sonarKey = 'bee-shoeshop-be'
+        sonarHome = tool 'sonar-tool'
+
+        trivyFsReport = "trivyfs-scan-${projectName}-${tagCommit}_report"
+        trivyImageReport = "image-scan-${projectName}-${tagCommit}_report"
+
+        dockerHub = "thien3624"
+        dockerCredentials = "dockerhub-cred"
+        tagCommit = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.take(7)}"
+        imageCommit = "${dockerHub}/${projectName}:${tagCommit}"
+        imageLatest = "${dockerHub}/${projectName}:latest"
+    }
+    stages{
+        stage("Test with sonar scaner")
+        {
+            steps{
+                withSonarQubeEnv('sonar-server-self-host') {
+                        sh ''' 
+                        docker run --rm -e SONAR_HOST_URL=${SONAR_HOST_URL} \
+                            -e SONAR_SCANNER_OPTS="-Dsonar.projectKey=${sonarKey} \
+                                                   -Dsonar.exclusions=**/*.java" \
+                            -e SONAR_TOKEN=$sonarToken \
+                            -v './:/usr/src' \
+                            sonarsource/sonar-scanner-cli '''
+                }
+            }
+        }
+        stage('Trivy FS Scan') 
+        {
+            steps {
+                script {
+                    sh '''
+                        docker run --rm \
+                            -v /var/run/docker.sock:/var/run/docker.sock \
+                            -v $WORKSPACE:/app \
+                            aquasec/trivy:latest fs /app \
+                            --severity HIGH,CRITICAL \
+                            --format template --template "@/contrib/html.tpl" \
+                            --output /app/${trivyFsReport}.html
+                    '''
+                }
+            }
+        }
+        stage("Build stage")
+        {
+            // agent{ label 'build-server-agent' }
+            steps{
+                sh (script: """docker build -t ${imageCommit} .""")
+                sh (script: """docker build -t ${imageLatest} .""")
+            }
+        }
+        stage("Trivy image scan")
+        {
+            steps{
+                script{
+                    sh '''
+                        docker run --rm \
+                            -v /var/run/docker.sock:/var/run/docker.sock \
+                            -v $WORKSPACE:/app \
+                            aquasec/trivy:latest image \
+                            --format template --template "@/contrib/html.tpl" \
+                            --output /app/${trivyImageReport}.html $imageCommit
+                    '''
+                }
+            }
+        }
+        stage("Clean stage")
+        {
+            steps{
+                sh (script: """docker rmi ${imageLatest}""")
+                sh (script: """docker rmi ${imageCommit}""")
+                sh (script: '''chown 777 ${trivyFsReport}.html ''')
+                sh (script: '''chown 777 ${trivyImageReport}.html ''')
+            }
+        }
+        stage("Push"){
+            // agent{ label 'build-server-agent' }
+            steps{
+                sh """ docker system prune -af """
+                sh """ ls -al """
+            }
+        }
+    }
+}
