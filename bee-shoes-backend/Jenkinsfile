@@ -102,12 +102,13 @@ pipeline{
         stage("Clean stage")
         {
             steps{
-                sh (script: """docker rmi ${imageLatest}""")
-                sh (script: """docker rmi ${imageCommit}""")
-                sh (script: '''sudo chown 777 $WORKSPACE/bee-shoes-backend${trivyFsReport}.html ''')
-                sh (script: '''sudo chown 777 $WORKSPACE/bee-shoes-backend${trivyImageReport}.html ''')
-                sh """ docker system prune -af """
-                sh """ docker logout """ 
+                sh (script: ''' docker rmi ${imageLatest} ''')
+                sh (script: ''' docker rmi ${imageCommit} ''')
+                sh (script: ''' docker rmi aquasec/trivy  ''')
+                sh (script: ''' docker rmi sonarsource/sonar-scanner-cli  ''')
+                sh (script: ''' sudo chown 777 $WORKSPACE/bee-shoes-frontend/${trivyFsReport}.html ''')
+                sh (script: ''' sudo chown 777 $WORKSPACE/bee-shoes-frontend/${trivyImageReport}.html ''')
+                sh (script: ''' docker logout ''' )
             }
         }
     }
