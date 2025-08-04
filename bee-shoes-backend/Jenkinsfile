@@ -7,10 +7,10 @@ pipeline{
 
         gitRepo = "Bee-Shoeshop-Pipeline"
         gitUserName = "Thien3624"
+        gitCred = "jenkins-github"
 
         sonarToken = credentials('bee-shoeshop-scaner-token')
         sonarKey = 'bee-shoeshop-be'
-        sonarHome = tool 'sonar-tool'
 
         trivyFsReport = "trivyfs-scan-${projectName}-${tagCommit}_report"
         trivyImageReport = "image-scan-${projectName}-${tagCommit}_report"
@@ -87,7 +87,7 @@ pipeline{
         }
         stage('Update Deployment File') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'github-cred', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'gitCred', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                     sh """
                         git config user.email "duythien3624@gmail.com"    
                         git config user.name "Thien3624"
