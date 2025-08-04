@@ -92,7 +92,7 @@ pipeline{
                         sh ( script: ''' git config user.email "duythien3624@gmail.com" ''')
                         sh ( script: ''' git config user.name "Thien3624" ''')
                         sh ( script: ''' sed -i "s#image: thien3624/beeshop-backend:.*#image: thien3624/beeshop-backend:${tagCommit}#g" $WORKSPACE/bee-shoes-backend/manifests/deployment.yaml ''')
-                        sh ( script: ''' git add $WORKSPACE/bee-shoes-backend/manifests/deployment.yml ''')
+                        sh ( script: ''' git add $WORKSPACE/bee-shoes-backend/manifests/deployment.yaml ''')
                         sh ( script: ''' git commit -m "doc(k8s): Update deployment image to version ${tagCommit}" ''')
                         sh ( script: ''' git push https://${GIT_USER}:${GIT_PASS}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:UAT ''')
                     }
