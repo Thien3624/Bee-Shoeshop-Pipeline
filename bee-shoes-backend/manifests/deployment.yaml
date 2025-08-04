@@ -17,7 +17,7 @@ spec:
     spec:  
       containers:
       - name: beeshop-backend
-        image: thien3624/beeshop-backend:replaceImageTag
+        image: thien3624/beeshop-backend:UAT-50df0ff
         ports:
         - containerPort: 8080
 
