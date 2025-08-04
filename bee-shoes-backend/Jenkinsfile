@@ -87,15 +87,17 @@ pipeline{
         }
         stage('Update Deployment File') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'gitCred', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'gitCred', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                     sh """
                         git config user.email "duythien3624@gmail.com"    
                         git config user.name "Thien3624"
-                        sed -i "s/replaceImageTag/${tagCommit}/g" bee-shoes-backend/manifests/deployment.yml
+                        sed -i "s#image: thien3624/beeshop-backend:.*#image: thien3624/beeshop-backend:${tagCommit}#g" bee-shoes-backend/manifests/deployment.yml
                         git add bee-shoes-backend/manifests/deployment.yml
                         git commit -m "doc(k8s): Update deployment image to version ${tagCommit}"
                         git push https://${GIT_USER}:${GIT_PASS}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:UAT
                     """
+                    }
                 }
             }
         }
