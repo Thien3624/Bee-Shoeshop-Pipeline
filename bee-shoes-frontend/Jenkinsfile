@@ -9,8 +9,8 @@ pipeline{
         gitUserName = "Thien3624"
         gitCred = "jenkins-github"
 
-        sonarToken = credentials('bee-shoeshop-scaner-token')
-        sonarKey = 'bee-shoeshop-be'
+        sonarToken = credentials('bee-shoeshop-fe-scanner')
+        sonarKey = 'bee-shoeshop-fe'
 
         trivyFsReport = "trivyfs-scan-${projectName}-${tagCommit}_report"
         trivyImageReport = "image-scan-${projectName}-${tagCommit}_report"
