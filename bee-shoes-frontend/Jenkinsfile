@@ -91,7 +91,7 @@ pipeline{
                     withCredentials([usernamePassword(credentialsId: gitCred, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                         sh ( script: ''' git config user.email "duythien3624@gmail.com" ''')
                         sh ( script: ''' git config user.name "Thien3624" ''')
-                        sh ( script: ''' sed -i "s#image: thien3624/beeshop-frontend:.*#image: thien3624/beeshop-frontend:${tagCommit}#g" $WORKSPACE/bee-shoes-frontend/manifests/deployment.yml ''')
+                        sh ( script: ''' sed -i "s#image: thien3624/beeshop-frontend:.*#image: thien3624/beeshop-frontend:${tagCommit}#g" $WORKSPACE/bee-shoes-frontend/manifests/deployment.yaml ''')
                         sh ( script: ''' git add $WORKSPACE/bee-shoes-frontend/manifests/deployment.yml ''')
                         sh ( script: ''' git commit -m "doc(k8s): Update deployment image to version ${tagCommit}" ''')
                         sh ( script: ''' git push https://${GIT_USER}:${GIT_PASS}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:UAT ''')
