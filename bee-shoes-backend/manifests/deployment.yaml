@@ -6,7 +6,7 @@ metadata:
   labels:
     app: beeshop-backend
 spec:
-  replicas: 11
+  replicas: 3
   selector:
     matchLabels:
       app: beeshop-backend
