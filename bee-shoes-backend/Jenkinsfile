@@ -53,8 +53,8 @@ pipeline{
         {
             // agent{ label 'build-server-agent' }
             steps{
-                sh (script: """docker build -t ${imageCommit} .""")
-                sh (script: """docker build -t ${imageLatest} .""")
+                sh (script: """docker build -t ${imageCommit} -f ./bee-shoes-backend/Dockerfile ./bee-shoes-backend""")
+                sh (script: """docker build -t ${imageLatest} -f ./bee-shoes-backend/Dockerfile ./bee-shoes-backend""")
             }
         }
         stage("Trivy image scan")
