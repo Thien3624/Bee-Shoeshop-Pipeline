@@ -1,7 +1,7 @@
 # 🛠️ Bee-Shoeshop Jenkins CI/CD Pipelines
 
 This repository contains two Jenkins pipelines for the Bee-Shoeshop project:
-- 🧠 **Backend Pipeline** (Java/.NET)
+- 🧠 **Backend Pipeline** (Java)
 - 🎨 **Frontend Pipeline** (React)
 
 Both pipelines are designed with **DevSecOps** principles, integrating static code analysis, vulnerability scanning, containerization, and Kubernetes deployment via GitOps.
@@ -92,12 +92,8 @@ To save storage, the pipelines:
 
 ---
 
-## ✍️ Maintained by
+## 📬 Contact
 
-**Quách Nguyễn Duy Thiện**  
-📧 [duythien3624@gmail.com](mailto:duythien3624@gmail.com)  
-🔗 GitHub: [Thien3624](https://github.com/Thien3624)
+[![LinkedIn Badge](https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin)](https://www.linkedin.com/in/duythien3624)
 
----
 
-> “Automated, secure, and production-ready builds — shipped straight to Kubernetes.”
