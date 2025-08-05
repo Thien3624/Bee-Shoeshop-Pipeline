@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beeshop-frontend-deployment
+  namespace: beeshop
+  labels:
+    app: beeshop-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beeshop-frontend
+  template: 
+    metadata:
+      labels:
+        app: beeshop-frontend
+    spec:  
+      containers:
+      - name: beeshop-frontend
+        image: thien3624/beeshop-frontend:UAT-1efc7ee
+        ports:
+        - containerPort: 80
+
+

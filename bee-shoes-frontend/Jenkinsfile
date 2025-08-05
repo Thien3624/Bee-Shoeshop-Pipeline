@@ -1,0 +1,115 @@
+pipeline{
+    agent { label 'build-server-agent' }
+    environment
+    {
+        projectName = "bee-shoeshop-frontend"
+        pathProject = "/projects/$projectName"
+
+        gitRepo = "Bee-Shoeshop-Pipeline"
+        gitUserName = "Thien3624"
+        gitCred = "jenkins-github"
+
+        sonarToken = credentials('bee-shoeshop-fe-scanner')
+        sonarKey = 'bee-shoeshop-fe'
+
+        trivyFsReport = "trivyfs-scan-${projectName}-${tagCommit}_report"
+        trivyImageReport = "image-scan-${projectName}-${tagCommit}_report"
+
+        dockerHub = "thien3624"
+        dockerCredentials = 'dockerhub-cred'
+        tagCommit = "${GIT_BRANCH.tokenize('/').pop()}-${GIT_COMMIT.take(7)}"
+        imageCommit = "${dockerHub}/${projectName}:${tagCommit}"
+        imageLatest = "${dockerHub}/${projectName}:latest"
+    }
+    stages{
+        stage("Test with sonar scaner")
+        {
+            steps{
+                withSonarQubeEnv('sonar-server-self-host') {
+                        sh ''' 
+                        docker run --rm -e SONAR_HOST_URL=${SONAR_HOST_URL} \
+                            -e SONAR_SCANNER_OPTS="-Dsonar.projectKey=${sonarKey}" \
+                            -e SONAR_TOKEN=$sonarToken \
+                            -v './bee-shoes-frontend:/usr/src' \
+                            sonarsource/sonar-scanner-cli 
+                        '''
+                }
+            }
+        }
+        stage('Trivy FS Scan') 
+        {
+            steps {
+                script {
+                    sh '''
+                        docker run --rm \
+                            -v /var/run/docker.sock:/var/run/docker.sock \
+                            -v $WORKSPACE/bee-shoes-frontend:/app \
+                            aquasec/trivy:latest fs /app \
+                            --severity HIGH,CRITICAL \
+                            --format template --template "@/contrib/html.tpl" \
+                            --output /app/${trivyFsReport}.html
+                    '''
+                }
+            }
+        }
+        stage("Build stage")
+        {
+            // agent{ label 'build-server-agent' }
+            steps{
+                sh (script: """docker build -t ${imageCommit} -f ./bee-shoes-frontend/Dockerfile ./bee-shoes-frontend""")
+                sh (script: """docker build -t ${imageLatest} -f ./bee-shoes-frontend/Dockerfile ./bee-shoes-frontend""")
+            }
+        }
+        stage("Trivy image scan")
+        {
+            steps{
+                script{
+                    sh '''
+                        docker run --rm \
+                            -v /var/run/docker.sock:/var/run/docker.sock \
+                            -v $WORKSPACE/bee-shoes-frontend:/app \
+                            aquasec/trivy:latest image \
+                            --format template --template "@contrib/html.tpl" \
+                            --output /app/${trivyImageReport}.html $imageCommit
+                    '''
+                }
+            }
+        }
+        stage("Push stage"){
+            // agent{ label 'build-server-agent' }
+            steps{
+                withCredentials([usernamePassword(credentialsId: dockerCredentials, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh (script: ''' docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} ''')
+                    sh (script: ''' docker push ${imageLatest} ''')
+                    sh (script: ''' docker push ${imageCommit} ''')
+                }      
+            }
+        }
+        stage('Update Deployment File') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: gitCred, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                        sh ( script: ''' git config user.email "duythien3624@gmail.com" ''')
+                        sh ( script: ''' git config user.name "Thien3624" ''')
+                        sh ( script: ''' sed -i "s#image: thien3624/beeshop-frontend:.*#image: thien3624/beeshop-frontend:${tagCommit}#g" $WORKSPACE/bee-shoes-frontend/manifests/deployment.yaml ''')
+                        sh ( script: ''' git add $WORKSPACE/bee-shoes-frontend/manifests/deployment.yaml ''')
+                        sh ( script: ''' git commit -m "doc(k8s): Update deployment image to version ${tagCommit}" ''')
+                        sh ( script: ''' git push https://${GIT_USER}:${GIT_PASS}@github.com/$gitUserName/$gitRepo.git HEAD:UAT ''')
+                    }
+                }
+            }
+        }
+        stage("Clean stage")
+        {
+            steps{
+                sh (script: ''' docker rmi ${imageLatest} ''')
+                sh (script: ''' docker rmi ${imageCommit} ''')
+                sh (script: ''' docker rmi aquasec/trivy  ''')
+                sh (script: ''' docker rmi sonarsource/sonar-scanner-cli  ''')
+                sh (script: ''' sudo chown 777 $WORKSPACE/bee-shoes-frontend/${trivyFsReport}.html ''')
+                sh (script: ''' sudo chown 777 $WORKSPACE/bee-shoes-frontend/${trivyImageReport}.html ''')
+                sh (script: ''' docker logout ''' )
+            }
+        }
+    }
+}
